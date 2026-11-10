@@ -1,0 +1,324 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTE Preparation Calendar</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: white;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 25px;
+        }
+
+        .countdown {
+            background: #eff6ff;
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .countdown h2 {
+            color: #2563eb;
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .countdown p {
+            color: #475569;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-header h2 {
+            color: #1e293b;
+        }
+
+        button {
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .weekdays, .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+
+        .weekdays div {
+            font-weight: bold;
+            color: #64748b;
+            padding: 10px 0;
+        }
+
+        .days div {
+            padding: 13px 5px;
+            border-radius: 8px;
+            color: #334155;
+        }
+
+        .empty {
+            background: transparent;
+        }
+
+        /* Previous dates */
+        .past {
+            color: #94a3b8 !important;
+            text-decoration: underline;
+            text-decoration-color: #2563eb;
+            text-decoration-thickness: 2px;
+        }
+
+        /* Today's date */
+        .today {
+            background: #2563eb;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        /* Final PTE date */
+        .target {
+            background: #16a34a;
+            color: white !important;
+            font-weight: bold;
+            border: 2px solid #15803d;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+            color: #475569;
+            font-size: 13px;
+        }
+
+        .legend span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .blue { background: #2563eb; }
+        .green { background: #16a34a; }
+        .grey { background: #94a3b8; }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 18px;
+            }
+
+            .weekdays, .days {
+                gap: 4px;
+            }
+
+            .days div {
+                padding: 12px 2px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>My PTE Preparation</h1>
+        <p class="subtitle">Every day brings me closer to my goal!</p>
+
+        <div class="countdown">
+            <h2 id="countdown">Loading...</h2>
+            <p>Days remaining until my PTE target date</p>
+            <p><strong>25 December 2026</strong></p>
+        </div>
+
+        <div class="calendar-header">
+            <button onclick="changeMonth(-1)">❮</button>
+            <h2 id="monthYear"></h2>
+            <button onclick="changeMonth(1)">❯</button>
+        </div>
+
+        <div class="weekdays">
+            <div>Sun</div>
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+        </div>
+
+        <div class="days" id="calendarDays"></div>
+
+        <div class="legend">
+            <span><i class="dot grey"></i> Previous dates</span>
+            <span><i class="dot blue"></i> Today</span>
+            <span><i class="dot green"></i> PTE Target</span>
+        </div>
+
+    </div>
+
+    <script>
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const targetDate = new Date(2026, 11, 25);
+
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+
+        // Countdown
+        function updateCountdown() {
+            const difference = targetDate - today;
+            const remainingDays = Math.ceil(
+                difference / (1000 * 60 * 60 * 24)
+            );
+
+            document.getElementById("countdown").innerText =
+                remainingDays > 0
+                    ? remainingDays + " Days"
+                    : remainingDays === 0
+                    ? "Target Day!"
+                    : "Target Date Passed";
+        }
+
+        // Generate Calendar
+        function generateCalendar() {
+
+            const firstDay = new Date(
+                currentYear, currentMonth, 1
+            ).getDay();
+
+            const totalDays = new Date(
+                currentYear, currentMonth + 1, 0
+            ).getDate();
+
+            const monthName = new Date(
+                currentYear, currentMonth
+            ).toLocaleString("default", {
+                month: "long"
+            });
+
+            document.getElementById("monthYear").innerText =
+                monthName + " " + currentYear;
+
+            const calendar = document.getElementById("calendarDays");
+
+            calendar.innerHTML = "";
+
+            // Empty spaces before first date
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement("div");
+                empty.classList.add("empty");
+                calendar.appendChild(empty);
+            }
+
+            // Generate dates
+            for (let day = 1; day <= totalDays; day++) {
+
+                const dateElement = document.createElement("div");
+                dateElement.innerText = day;
+
+                const currentDate = new Date(
+                    currentYear, currentMonth, day
+                );
+
+                // Previous dates
+                if (currentDate < today) {
+                    dateElement.classList.add("past");
+                }
+
+                // Today's date
+                if (currentDate.getTime() === today.getTime()) {
+                    dateElement.classList.add("today");
+                }
+
+                // Final PTE target date
+                if (currentDate.getTime() === targetDate.getTime()) {
+                    dateElement.classList.add("target");
+                }
+
+                calendar.appendChild(dateElement);
+            }
+        }
+
+        // Change month
+        function changeMonth(direction) {
+            currentMonth += direction;
+
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+
+            generateCalendar();
+        }
+
+        updateCountdown();
+        generateCalendar();
+    </script>
+
+</body>
+</html>
